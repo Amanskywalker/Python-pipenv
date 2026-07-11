@@ -38,30 +38,27 @@ FROM amanskywalker/python-pipenv:3.13
 | Tag | Description |
 |-----|-------------|
 | `latest` | Most recent build from `main` |
-| `vX.Y.Z` | App version (from [VERSION](VERSION)) |
 | `3.14` | Python major.minor version |
 | `3.14-slim` | Full Python base image tag |
-| `sha-<commit>` | Specific commit |
+| `vX.Y.Z` / `X.Y.Z` / `X.Y` | Release version (pushed on tag) |
 
 ## CI/CD
 
 | Workflow | Trigger | Action |
 |----------|---------|--------|
-| [CI](.github/workflows/ci.yml) | PR / push to `main` | Builds image; on `main` pushes to DockerHub + creates `v*` git tag |
-| [Release](.github/workflows/release.yml) | `v*` tag push | Creates GitHub Release with release notes + pushes to DockerHub |
+| [CI](.github/workflows/ci.yml) | PR / push to `main` | Builds image; on `main` pushes to DockerHub + creates `v*` git tag + GitHub Release |
 
 ### Releasing
 
 1. Update `VERSION` (e.g. `0.2.0`) in your PR
-2. Merge to `main` — CI auto-creates tag `v0.2.0` and pushes the image
-3. The tag triggers the Release workflow — a GitHub Release is created automatically
+2. Merge to `main` — CI auto-creates tag `v0.2.0`, pushes the image, and creates a GitHub Release
 
 ## Contributing
 
 1. Fork the repo and create a feature branch
 2. Update `VERSION` if making a release
 3. Update `Dockerfile` if changing the Python base image
-4. Open a PR — CI will build and verify
+4. Open a PR — CI must pass before merging
 5. Once merged, a new tag and DockerHub image are published automatically
 
 ## License
