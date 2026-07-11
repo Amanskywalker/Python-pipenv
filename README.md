@@ -1,28 +1,69 @@
 # Python Pipenv container image
 
-Python Pipenv images container for the respective python versions
+Base Docker image with Python and Pipenv for downstream CI/CD pipelines. Follows [official Python EOL](https://devguide.python.org/versions/) — only non-EOL versions are actively built, but older images remain available on DockerHub.
 
-Currently only Python 3.10, 3.11, 3.12, 3.13 is supported
+- **Current build:** `python:3.14-slim` (Debian-based, minimal footprint)
+- **Version:** `$(cat VERSION)`
+- **Registry:** https://hub.docker.com/r/amanskywalker/python-pipenv
 
-## Image
-To get the images 
-https://hub.docker.com/repository/docker/amanskywalker/python-pipenv
+## Supported versions
 
-### Reason to build this
-This is the base containe for the another docker builds and cut the CI/CD time as can reuse the container again and again
+| Python | EOL | Status |
+|--------|-----|--------|
+| 3.14 | 2030-10 | Active |
+| 3.13 | 2029-10 | Active |
+| 3.12 | 2028-10 | Active |
+| 3.11 | 2027-10 | Active |
+| 3.10 | 2026-10 | Active |
 
+The project started from Python 3.10. Older images can still be pulled by their specific tag.
 
-### License
-Copyright 2026 Aman
+## Usage
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+```dockerfile
+FROM amanskywalker/python-pipenv:latest
 
-    http://www.apache.org/licenses/LICENSE-2.0
+COPY Pipfile Pipfile.lock ./
+RUN pipenv install --deploy --ignore-pipfile
+```
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Pull a specific Python version:
+
+```dockerfile
+FROM amanskywalker/python-pipenv:3.13
+```
+
+## Tags
+
+| Tag | Description |
+|-----|-------------|
+| `latest` | Most recent build from `main` |
+| `vX.Y.Z` | App version (from [VERSION](VERSION)) |
+| `3.14` | Python major.minor version |
+| `3.14-slim` | Full Python base image tag |
+| `sha-<commit>` | Specific commit |
+
+## CI/CD
+
+| Workflow | Trigger | Action |
+|----------|---------|--------|
+| [CI](.github/workflows/ci.yml) | PR / push to `main` | Builds image; on `main` pushes to DockerHub + creates `v*` git tag |
+| [Release](.github/workflows/release.yml) | `v*` tag push | Creates GitHub Release with release notes + pushes to DockerHub |
+
+### Releasing
+
+1. Update `VERSION` (e.g. `0.2.0`) in your PR
+2. Merge to `main` — CI auto-creates tag `v0.2.0` and pushes the image
+3. The tag triggers the Release workflow — a GitHub Release is created automatically
+
+## Contributing
+
+1. Fork the repo and create a feature branch
+2. Update `VERSION` if making a release
+3. Update `Dockerfile` if changing the Python base image
+4. Open a PR — CI will build and verify
+5. Once merged, a new tag and DockerHub image are published automatically
+
+## License
+
+Copyright 2026 Aman. Licensed under the [Apache License, Version 2.0](LICENSE).
